@@ -5,7 +5,12 @@
     {
       "src": "iconApps.png",
       "type": "iamge/png",
-      "size": "3264x3264"
+      "size": "192x192"
+    }
+    {
+      "src": "iconApps.png",
+      "type": "iamge/png",
+      "size": "512x512"
     }
   ],
   "star_url": "/index.html",
