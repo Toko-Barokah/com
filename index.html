@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="icon" type="image/png" size="3264x3264" href="iconApps.png">
     <link rel="apple-touch-icon" href="iconApps.png">
+    <link rel="manifest" href="manifest.json">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <style>
@@ -1635,7 +1636,7 @@ function showOperationalHours() {
 // Fungsi untuk menampilkan Detail Alamat Toko
 function showStoreAddress() {
     const alamatLengkap = "Jalan tanggul, Sawah, Centini, Kec. Laren, Kabupaten Lamongan, Jawa Timur 62262";
-    // Koordinat UD. BAROKAH (Berdasarkan data TOKO_COORDS Anda)
+    // Koordinat TOKO BAROKAH (Berdasarkan data TOKO_COORDS Anda)
     const lat = TOKO_COORDS.lat;
     const lng = TOKO_COORDS.lng;
     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
