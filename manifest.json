@@ -1,0 +1,16 @@
+{
+  "short_name": "TOKO BAROKAH",
+  "name": "TOKO BAROKAH | E-Commerce",
+  "icon": [
+    {
+      "src": "iconApps.png",
+      "type": "iamge/png",
+      "size": "3264x3264"
+    }
+  ],
+  "star_url": "/index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "display": "standalone",
+  "orientation": "portrait"
+}
