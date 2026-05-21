@@ -1,21 +1,23 @@
 {
   "short_name": "TOKO BAROKAH",
   "name": "TOKO BAROKAH",
-  "icon": [
+  "icons": [
     {
       "src": "iconApps.png",
-      "type": "iamge/png",
-      "sizes": "192x192"
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
       "src": "iconApps512.png",
-      "type": "iamge/png",
-      "sizes": "512x512"
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
-  "star_url": "/index.html",
-  "background_color": "blue",
-  "theme_color": "#000000",
+  "start_url": "/index.html",
+  "background_color": "#bde0fe",
+  "theme_color": "#bde0fe",
   "display": "standalone",
   "orientation": "portrait"
 }
