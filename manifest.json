@@ -8,13 +8,13 @@
       "sizes": "192x192"
     },
     {
-      "src": "iconApps.png",
+      "src": "iconApps512.png",
       "type": "iamge/png",
       "sizes": "512x512"
     }
   ],
   "star_url": "/index.html",
-  "background_color": " blue",
+  "background_color": "blue",
   "theme_color": "#000000",
   "display": "standalone",
   "orientation": "portrait"
