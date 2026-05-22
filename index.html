@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOKO BAROKAH | E-Commerce</title>
+    <title>TOKO BAROKAH</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="icon" type="image/png" sizes="192x192" href="iconApps.png">
@@ -19,6 +19,7 @@
     /* Memberikan ruang agar konten tidak tertutup navigasi bawah */
 body {
     padding-bottom: 80px; 
+    background: linear-gradient(0deg, #bde0fe 0%, #ffffff 100%);
 }
 
 /* Atau jika ingin lebih spesifik ke area konten */
@@ -44,7 +45,7 @@ body {
     align-items: center; 
     min-height: 100vh; 
     /* Gunakan gambar latar belakang yang relevan */
-    background: linear-gradient(rgba(37, 99, 235, 0.8), rgba(37, 99, 235, 0.8)), 
+    background: linear-gradient(0deg, #bde0fe 0%, #ffffff 100%); 
                 url(''); 
     background-size: cover;
     background-position: center;
@@ -1640,7 +1641,7 @@ function showOperationalHours() {
 // Fungsi untuk menampilkan Detail Alamat Toko
 function showStoreAddress() {
     const alamatLengkap = "Jalan tanggul, Sawah, Centini, Kec. Laren, Kabupaten Lamongan, Jawa Timur 62262";
-    // Koordinat TOKO BAROKAH (Berdasarkan data TOKO_COORDS Anda)
+    // Koordinat UD. BAROKAH (Berdasarkan data TOKO_COORDS Anda)
     const lat = TOKO_COORDS.lat;
     const lng = TOKO_COORDS.lng;
     const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
