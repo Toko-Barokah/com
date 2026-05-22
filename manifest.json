@@ -14,7 +14,7 @@
     }
   ],
   "start_url": "/index.html",
-  "background_color": "linear-gradient(135deg, #bde0fe 50%, #ffffff 50%);",
+  "background_color": "linear-gradient(0deg, #bde0fe 0%, #ffffff 100%);",
   "theme_color": "#000000",
   "display": "standalone",
   "orientation": "portrait"
