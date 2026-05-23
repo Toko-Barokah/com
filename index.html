@@ -414,6 +414,101 @@ body {
     padding-top: 40px; /* Memberi ruang agar X tidak menutupi konten */
 }
 
+/* ==================== BANNER MODERNISED WITH SLIDER & MARQUEE ==================== */
+.banner-block {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Slider Frame */
+.banner-slider-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    height: 190px;
+    background: #cbd5e1;
+    cursor: grab;
+}
+.banner-slider-container:active {
+    cursor: grabbing;
+}
+
+.banner-slider-wrapper {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+}
+
+.banner-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    text-decoration: none;
+}
+
+.banner-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Navigasi Titik Bulat Slider */
+.banner-dots {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+}
+
+.b-dot {
+    width: 7px;
+    height: 7px;
+    background: rgba(255,255,255,0.4);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.b-dot.active {
+    background: #ffffff;
+    width: 16px;
+    border-radius: 8px;
+}
+
+/* Block Marquee yang Menyatu di Bawah Gambar */
+.banner-marquee-box {
+    background: #bde0fe;
+    color: #000;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.banner-marquee-box marquee {
+    flex-grow: 1;
+}
+
+/* Tambahan CSS agar poin marquee dari Google Sheet otomatis renggang */
+#marquee-text span {
+    margin-right: 120px; /* Jarak renggang antar kalimat */
+    display: inline-block;
+}
+
     </style>
 </head>
 <body>
@@ -440,7 +535,7 @@ body {
         </form>
 
         <button onclick="toggleAuth()" id="toggle-link" style="background:none; border:none; color:#2563eb; width:100%; margin-top:15px; font-size:13px; cursor:pointer;">Belum punya akun? Daftar</button>
-            <footer style="margin-top:20px; color:#666;">&copy; 2026 TOKO BAROKAH</footer>
+            <footer style="margin-top:20px; color:#666;" id="auth-footer"></footer>
         </div>
     </div>
 
@@ -474,13 +569,27 @@ body {
 </div>
 
         <main id="page-beranda" class="page active">
-            <div class="search-container">
-                <i class="fas fa-search"></i>
-                <input type="text" id="search-input" class="search-input" placeholder="Cari produk..." onkeyup="filterProducts()">
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" class="search-input" placeholder="Cari produk..." onkeyup="filterProducts()">
+    </div>
+
+    <div id="banner-container" class="banner-block hidden">
+    <div class="banner-slider-container" id="bannerSliderContainer">
+        <div class="banner-slider-wrapper" id="bannerSliderWrapper">
             </div>
-            <h3 style="margin-bottom:15px; font-size: 16px;">Katalog Produk</h3>
-            <div id="product-grid" class="product-grid"></div>
-        </main>
+        <div class="banner-dots" id="bannerDotsContainer"></div>
+    </div>
+
+    <div id="marquee-box" class="banner-marquee-box hidden">
+        <i class="fas fa-bullhorn" style="color: red;"></i>
+        <marquee id="marquee-text" scrollamount="4" direction="left">Memuat info toko...</marquee>
+    </div>
+</div>
+
+    <h3 style="margin-bottom:15px; font-size: 16px;">Katalog Produk</h3>
+    <div id="product-grid" class="product-grid"></div>
+</main>
 
         <main id="page-keranjang" class="page">
             <div id="cart-list"></div>
@@ -544,6 +653,11 @@ body {
     <span><i class="fas fa-map-marked-alt" style="color: #2563eb; margin-right: 10px;"></i> Alamat Toko</span>
     <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
 </div>
+
+<div class="operational-trigger" onclick="showPrivacyPolicy()">
+    <span><i class="fas fa-circle-exclamation" style="color: #2563eb; margin-right: 10px;"></i> Ketentuan & Kebijakan</span>
+    <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
+</div>
                 
                 <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
                 <button onclick="logout()" style="background:#e11d48; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold;">Keluar Akun</button>
@@ -581,9 +695,7 @@ body {
 </main>
 
 
-        <footer>
-            &copy; 2026 TOKO BAROKAH. All Rights Reserved.
-        </footer>
+        <footer id="main-footer"> </footer>
 
         <nav class="bottom-nav">
             <button class="nav-item active" onclick="navTo('beranda', this)"><i class="fas fa-home"></i>Beranda</button>
@@ -730,6 +842,7 @@ function loadAddress() {
             document.getElementById('auth-page').classList.add('hidden');
             document.getElementById('main-app').classList.remove('hidden');
             document.getElementById('user-display').innerText = email;
+            loadBannerData(); 
             loadProducts();
         } else { 
             alert(result.message); 
@@ -1640,7 +1753,7 @@ function showOperationalHours() {
 
 // Fungsi untuk menampilkan Detail Alamat Toko
 function showStoreAddress() {
-    const alamatLengkap = "Jalan tanggul, Sawah, Centini, Kec. Laren, Kabupaten Lamongan, Jawa Timur 62262";
+    const alamatLengkap = "Jln. Tanggul Desa Centini, Rt:001/Rw:001, Kec. Laren, Kab. Lamongan, Jawa Timur 62262";
     // Koordinat UD. BAROKAH (Berdasarkan data TOKO_COORDS Anda)
     const lat = TOKO_COORDS.lat;
     const lng = TOKO_COORDS.lng;
@@ -1657,7 +1770,7 @@ function showStoreAddress() {
         <div style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
             <p style="font-size: 14px; color: #334155; line-height: 1.6; text-align: center;">
                 <i class="fas fa-map-marker-alt" style="color: #e11d48;"></i><br>
-                <strong>UD. BAROKAH</strong><br>
+                <strong>TOKO BAROKAH</strong><br>
                 ${alamatLengkap}
             </p>
         </div>
@@ -1852,13 +1965,288 @@ async function sendChatMessage(e) {
     }
 }
 
-// Jalankan pengecekan background chat masuk dari admin setiap 15 detik meskipun modal chat ditutup
+
 setInterval(() => {
     const isModalHidden = document.getElementById('chat-modal').classList.contains('hidden');
     if(isModalHidden) {
         loadChatHistory();
     }
-}, 15000);
+}, 5000);
+
+async function showPrivacyPolicy() {
+
+    document.getElementById('detail-body').innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 30px; color: #2563eb;"></i>
+            <p style="margin-top: 10px; color: #64748b; font-size: 14px;">Mohon Tunggu</p>
+        </div>
+    `;
+    document.getElementById('detail-modal').classList.remove('hidden');
+
+    try {
+
+        const res = await fetch(API_URL, { 
+            method: "POST", 
+            body: JSON.stringify({ action: "getPrivacyPolicy" }) 
+        });
+        const data = await res.json();
+
+        if (data && data.length > 0) {
+
+            let listHTML = data.map(p => {
+                const teksKebijakan = p.teks || p.Teks || "";
+                return teksKebijakan.trim() !== "" ? `<li style="margin-bottom: 12px; padding-left: 5px;">${teksKebijakan}</li>` : "";
+            }).join('');
+
+            document.getElementById('detail-body').innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="width: 55px; height: 55px; background: #eff6ff; color: #2563eb; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 24px;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <h3 style="margin-top: 12px; color: #1e3a8a;">Ketentuan & Kebijakan</h3>
+                    <p style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Aplikasi</p>
+                </div>
+                
+                <div style="max-height: 45vh; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;">
+                    <ol style="padding-left: 20px; font-size: 13px; color: #334155; line-height: 1.6; text-align: left;">
+                        ${listHTML}
+                    </ol>
+                </div>
+                
+                <button class="btn-primary" onclick="closeModal()" style="background: #2563eb; margin-top: 10px;">Saya Mengerti</button>
+            `;
+        } else {
+            document.getElementById('detail-body').innerHTML = `
+                <p style="text-align:center; padding: 20px; color:#64748b; font-size: 14px;">Belum ada data.</p>
+                <button class="btn-primary" onclick="closeModal()">Tutup</button>
+            `;
+        }
+    } catch (err) {
+        document.getElementById('detail-body').innerHTML = `
+            <p style="text-align:center; padding: 20px; color:#e11d48; font-size: 14px;"><i class="fas fa-exclamation-triangle"></i> Gagal memuat data. Periksa koneksi internet Anda.</p>
+            <button class="btn-primary" onclick="closeModal()" style="background:#64748b;">Tutup</button>
+        `;
+    }
+}
+
+// Fungsi untuk membuat tahun copyright dinamis
+function updateCopyrightYear() {
+    const currentYear = new Date().getFullYear();
+    const startYear = 2026;
+    let displayYear = startYear;
+
+    if (currentYear > startYear) {
+        displayYear = `${startYear}-${currentYear}`;
+    }
+
+    const authFooter = document.getElementById('auth-footer');
+    if (authFooter) {
+        authFooter.innerHTML = `&copy; ${displayYear} Toko Barokah All Rights Reserved.`;
+    }
+
+    const mainFooter = document.getElementById('main-footer');
+    if (mainFooter) {
+        mainFooter.innerHTML = `&copy; ${displayYear} Toko Barokah All Rights Reserved.`;
+    }
+}
+
+window.addEventListener('DOMContentLoaded', updateCopyrightYear);
+
+// Variabel Pengendali Slider Banner Toko
+let currentBannerIndex = 0;
+let bannerInterval = null;
+let bannerImagesCount = 0;
+
+async function loadBannerData() {
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                action: "getBanner",
+                data: {}
+            })
+        });
+        const resData = await response.json();
+        
+        if (resData && !resData.status) {
+            let hasContent = false;
+
+            if (resData.marquee_text && resData.marquee_text.trim() !== "") {
+    // Memotong teks setiap kali mendeteksi simbol "|" di Google Sheets
+    let poinPoin = resData.marquee_text.split('|');
+    
+    // Membungkus setiap potongan teks dengan tag <span> dan memberi logo pengumuman kecil (•)
+    let formatHTML = poinPoin.map(teks => {
+        return `<span><i class="fas fa-circle" style="color: #ccc; font-size: 11px; margin-right: 5px;"></i> ${teks.trim()}</span>`;
+    }).join('');
+    
+    // Dimasukkan sebagai .innerHTML agar terbaca oleh CSS
+    document.getElementById('marquee-text').innerHTML = formatHTML;
+    document.getElementById('marquee-box').classList.remove('hidden');
+    hasContent = true;
+}
+
+            else {
+                document.getElementById('marquee-box').classList.add('hidden');
+            }
+
+            // 2. Setup Slider Banner (Mendukung Multi-Gambar dipisahkan oleh Koma)
+            const sliderWrapper = document.getElementById('bannerSliderWrapper');
+            const dotsContainer = document.getElementById('bannerDotsContainer');
+            
+            sliderWrapper.innerHTML = "";
+            dotsContainer.innerHTML = "";
+
+            if (resData.image_url && resData.image_url.trim() !== "") {
+                // Memisah string URL jika admin menginput lebih dari satu gambar dengan tanda koma ( , )
+                const images = resData.image_url.split(',').map(img => img.trim());
+                const links = resData.link_url ? resData.link_url.split(',').map(lnk => lnk.trim()) : [];
+                
+                bannerImagesCount = images.length;
+                hasContent = true;
+
+                // Render Elemen Slide Gambar & Tautan
+                images.forEach((imgUrl, idx) => {
+                    const targetLink = links[idx] || links[0] || ""; // Fallback ke link pertama jika jumlah link tidak sama
+                    const hasLink = targetLink && targetLink !== "-";
+                    
+                    const slideElement = document.createElement(hasLink ? 'a' : 'div');
+                    slideElement.className = "banner-slide";
+                    if(hasLink) {
+                        slideElement.href = targetLink;
+                        slideElement.target = "_blank";
+                    }
+                    
+                    slideElement.innerHTML = `<img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/400x160?text=Promo+UD+Barokah'">`;
+                    sliderWrapper.appendChild(slideElement);
+
+                    // Render Titik Bulat Indikator (Jika gambar lebih dari satu)
+                    if(bannerImagesCount > 1) {
+                        const dot = document.createElement('div');
+                        dot.className = `b-dot ${idx === 0 ? 'active' : ''}`;
+                        dotsContainer.appendChild(dot);
+                    }
+                });
+
+                // Inisialisasi Fungsi Geser / Swiping Otomatis & Manual
+                if(bannerImagesCount > 1) {
+                    initBannerSliderControls();
+                }
+                document.getElementById('bannerSliderContainer').style.display = "block";
+            } else {
+                document.getElementById('bannerSliderContainer').style.display = "none";
+            }
+
+            // Tampilkan container utama block jika data valid
+            if (hasContent) {
+                const bannerContainer = document.getElementById('banner-container');
+                bannerContainer.classList.remove('hidden');
+                
+                // Paksa marquee untuk berjalan kembali setelah class hidden hilang
+                const marqueeText = document.getElementById('marquee-text');
+                if (marqueeText) {
+                    marqueeText.start();
+                }
+            }
+        }
+    } catch (error) {
+        console.error("Gagal memuat data banner:", error);
+    }
+}
+
+// FUNGSI KONTROL SLIDER BANNER (SWIPING & AUTO SLIDE)
+function initBannerSliderControls() {
+    const container = document.getElementById('bannerSliderContainer');
+    const wrapper = document.getElementById('bannerSliderWrapper');
+    
+    let startX = 0;
+    let currentX = 0;
+    let isDragging = false;
+
+    // 1. Gerakan Otomatis Bergeser (Setiap 4 Detik)
+    if(bannerInterval) clearInterval(bannerInterval);
+    bannerInterval = setInterval(() => {
+        currentBannerIndex = (currentBannerIndex + 1) % bannerImagesCount;
+        updateBannerSliderPosition();
+    }, 4000);
+
+    // Reset pewaktu otomatis saat user berinteraksi manual
+    function resetBannerTimer() {
+        clearInterval(bannerInterval);
+        bannerInterval = setInterval(() => {
+            currentBannerIndex = (currentBannerIndex + 1) % bannerImagesCount;
+            updateBannerSliderPosition();
+        }, 4000);
+    }
+
+    // 2. Kontrol Geser Manual untuk HP (Touch Events)
+    container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        isDragging = true;
+        clearInterval(bannerInterval);
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        currentX = e.touches[0].clientX;
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        handleSwipeGesture();
+        resetBannerTimer();
+    });
+
+    // 3. Kontrol Geser Manual untuk Laptop/PC (Mouse Events)
+    container.addEventListener('mousedown', (e) => {
+        startX = e.clientX;
+        isDragging = true;
+        clearInterval(bannerInterval);
+        e.preventDefault();
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        currentX = e.clientX;
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        handleSwipeGesture();
+        resetBannerTimer();
+    });
+
+    // Menghitung arah usapan tangan
+    function handleSwipeGesture() {
+        const difference = startX - currentX;
+        // Hanya bergeser jika usapan lebih dari 50 pixel (sensitivitas)
+        if (Math.abs(difference) > 50 && currentX !== 0) {
+            if (difference > 0) {
+                // Usap ke kiri -> Slide Selanjutnya
+                currentBannerIndex = (currentBannerIndex + 1) % bannerImagesCount;
+            } else {
+                // Usap ke kanan -> Slide Sebelumnya
+                currentBannerIndex = (currentBannerIndex - 1 + bannerImagesCount) % bannerImagesCount;
+            }
+        }
+        updateBannerSliderPosition();
+        currentX = 0; // reset nilai
+    }
+}
+
+// Menggerakkan wrapper slider ke koordinat index terpilih
+function updateBannerSliderPosition() {
+    const wrapper = document.getElementById('bannerSliderWrapper');
+    const dots = document.querySelectorAll('.b-dot');
+    
+    wrapper.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+    
+    dots.forEach((dot, idx) => {
+        dot.classList.toggle('active', idx === currentBannerIndex);
+    });
+}
 
     </script>
 </body>
