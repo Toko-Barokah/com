@@ -420,7 +420,7 @@ body {
     border-radius: 14px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-    margin-bottom: 20px;
+    margin-bottom: 50px;
     border: 1px solid #e2e8f0;
     display: flex;
     flex-direction: column;
@@ -512,6 +512,25 @@ body {
     </style>
 </head>
 <body>
+    
+    <div id="install-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 360px; text-align: center; padding: 25px 20px;">
+        
+        <div style="width: 70px; height: 70px; background: #e0f2fe; color: #2563eb; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(37,99,235,0.1);">
+            <i class="fas fa-cloud-download-alt"></i>
+        </div>
+        <h3 style="color: #1e3a8a; margin-bottom: 8px; font-size: 18px;">Unduh Aplikasi</h3>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 50px; line-height: 1.5;">
+            Tambahkan aplikasi ke layar utama perangkat Anda untuk akses belanja yang lebih cepat dan mudah!
+        </p>
+        <button id="btn-install-app" class="btn-primary" style="background: #2563eb; font-size: 14px; font-weight: bold; padding: 12px;">
+            <i class="fas fa-mobile-alt" style="margin-right: 8px;"></i> Unduh
+        </button>
+        <button onclick="closeInstallModal()" style="background: none; border: none; color: #94a3b8; font-size: 12px; margin-top: 12px; cursor: pointer; text-decoration: underline;">
+            Nanti Saja
+        </button>
+    </div>
+</div>
 
     <div id="auth-page">
     <div class="auth-card">
@@ -654,6 +673,11 @@ body {
     <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
 </div>
 
+<div class="operational-trigger" onclick="showContactUs()">
+    <span><i class="fas fa-headset" style="color: #2563eb; margin-right: 10px;"></i> Hubungi Kami</span>
+    <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
+</div>
+
 <div class="operational-trigger" onclick="showPrivacyPolicy()">
     <span><i class="fas fa-circle-exclamation" style="color: #2563eb; margin-right: 10px;"></i> Ketentuan & Kebijakan</span>
     <i class="fas fa-chevron-right" style="color: #cbd5e1;"></i>
@@ -663,6 +687,28 @@ body {
                 <button onclick="logout()" style="background:#e11d48; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold;">Keluar Akun</button>
             </div>
         </main>
+
+<div id="contact-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 400px; text-align: center; padding: 25px 20px;">
+        <span class="close-x" onclick="closeContactModal()">&times;</span>
+        <div style="width: 60px; height: 60px; background: #e0f2fe; color: #2563eb; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 15px;">
+            <i class="fas fa-headset"></i>
+        </div>
+        <h3 style="color: #1e3a8a; margin-bottom: 8px;">Hubungi Kami</h3>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 20px;">Silakan pilih layanan di bawah ini untuk pengaduan terkait kendala yang anda alami.</p>
+        
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; text-align: left; cursor: pointer; transition: 0.3s;" onclick="redirectToEmail()">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-envelope" style="font-size: 20px; color: #555;"></i>
+                <div>
+                    <strong style="font-size: 14px; color: #334155;">Email</strong>
+                    <p style="font-size: 12px; color: #64748b; margin-top: 2px;">toko.barokah.material@gmail.com</p>
+                </div>
+            </div>
+            <i class="fas fa-external-link-alt" style="color: #cbd5e1; font-size: 14px;"></i>
+        </div>
+    </div>
+</div>
         
         <main id="page-pembayaran" class="page">
     <h3 style="margin-bottom:15px; color:#1e3a8a;"><i class="fas fa-wallet"></i> Detail Pembayaran</h3>
@@ -2247,6 +2293,93 @@ function updateBannerSliderPosition() {
         dot.classList.toggle('active', idx === currentBannerIndex);
     });
 }
+
+// Fungsi untuk membuka Modal Hubungi Kami
+function showContactUs() {
+    document.getElementById('contact-modal').classList.remove('hidden');
+}
+
+// Fungsi untuk menutup Modal Hubungi Kami
+function closeContactModal() {
+    document.getElementById('contact-modal').classList.add('hidden');
+}
+
+// Fungsi untuk mengalihkan otomatis menuju aplikasi email perangkat
+function redirectToEmail() {
+    const emailTarget = "toko.barokah.material@gmail.com";
+    const subject = encodeURIComponent("Tanya Admin - Toko Barokah");
+    const body = encodeURIComponent("Halo Admin Toko Barokah,\n\nSaya ingin menanyakan terkait...");
+    
+    // Membuka URI scheme mailto eksternal
+    window.location.href = `mailto:${emailTarget}?subject=${subject}&body=${body}`;
+}
+
+// Variabel global untuk menyimpan event instalasi PWA
+let deferredPrompt;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Mencegah browser menampilkan prompt bawaan secara otomatis
+    e.preventDefault();
+    // Simpan event ke variabel agar bisa dipicu nanti
+    deferredPrompt = e;
+    
+    // Cek apakah user sudah pernah menolak/menutup instalasi pada sesi ini
+    const isDismissed = sessionStorage.getItem('install_prompt_dismissed');
+    
+    // Tampilkan modal download otomatis setelah PWA siap (misal diberi delay 2 detik biar halus)
+    if (!isDismissed) {
+        setTimeout(() => {
+            showInstallModal();
+        }, 200);
+    }
+});
+
+// Fungsi untuk Membuka Modal Install
+function showInstallModal() {
+    const installModal = document.getElementById('install-modal');
+    if (installModal) {
+        installModal.classList.remove('hidden');
+    }
+}
+
+// Fungsi untuk Menutup Modal Install
+function closeInstallModal() {
+    const installModal = document.getElementById('install-modal');
+    if (installModal) {
+        installModal.classList.add('hidden');
+    }
+    // Menyimpan status penolakan sementara di session storage agar tidak terus menerus mengganggu user di sesi yang sama
+    sessionStorage.setItem('install_prompt_dismissed', 'true');
+}
+
+// Pasang Event Listener Klik ke Tombol Install di dalam Modal
+document.getElementById('btn-install-app').addEventListener('click', async () => {
+    if (!deferredPrompt) {
+        alert("Aplikasi sudah terinstal atau perangkat Anda belum mendukung fitur ini.");
+        closeInstallModal();
+        return;
+    }
+    
+    // Tampilkan prompt instalasi bawaan browser
+    deferredPrompt.prompt();
+    
+    // Tunggu respon pilihan dari pengguna
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to the install prompt: ${outcome}`);
+    
+    // Reset deferredPrompt karena prompt hanya bisa digunakan sekali
+    deferredPrompt = null;
+    
+    // Tutup modal setelah proses selesai
+    closeInstallModal();
+});
+
+// Deteksi jika aplikasi berhasil terinstal secara penuh
+window.addEventListener('appinstalled', (evt) => {
+    console.log('Aplikasi berhasil ditambahkan ke layar utama.');
+    alert('Aplikasi berhasil ditambahkan ke layar utama!');
+    closeInstallModal();
+});
 
     </script>
 </body>
