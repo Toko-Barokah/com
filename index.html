@@ -860,40 +860,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
-
-// 2. Fungsi Utama untuk Meminta Token Menggunakan VAPID Key
-function aktifkanNotifikasiSitus() {
-  // Minta izin ke browser perangkat (HP/Laptop)
-  Notification.requestPermission().then((permission) => {
-    if (permission === 'granted') {
-      console.log('Izin notifikasi diberikan.');
-
-      // Panggil getToken dan masukkan Web Push Certificate (VAPID Key) Anda di sini
-      getToken(messaging, { 
-        vapidKey: 'BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk' 
-      })
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log("Token perangkat berhasil didapat:", currentToken);
-          
-          // Simpan token ke localStorage agar SPA bisa mengambilnya saat checkout
-          localStorage.setItem("fcm_token_perangkat", currentToken);
-          
-          // JIKA YANG LOGIN ADALAH ADMIN:
-          // Anda bisa memunculkan token ini ke layar untuk disalin manual ke Google Script,
-          // atau kirim otomatis ke server jika sistem login admin Anda sudah dinamis.
-        } else {
-          console.log('Token tidak tersedia. Ambil izin ulang.');
-        }
-      })
-      .catch((err) => {
-        console.error('Gagal mengambil token perangkat: ', err);
-      });
-    } else {
-      console.warn('Izin notifikasi ditolak oleh pengguna.');
-    }
-  });
-}
 </script>
 
     <script>
@@ -2920,6 +2886,40 @@ window.addEventListener('load', () => {
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 });
+
+// 2. Fungsi Utama untuk Meminta Token Menggunakan VAPID Key
+function aktifkanNotifikasiSitus() {
+  // Minta izin ke browser perangkat (HP/Laptop)
+  Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+      console.log('Izin notifikasi diberikan.');
+
+      // Panggil getToken dan masukkan Web Push Certificate (VAPID Key) Anda di sini
+      getToken(messaging, { 
+        vapidKey: 'BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk' 
+      })
+      .then((currentToken) => {
+        if (currentToken) {
+          console.log("Token perangkat berhasil didapat:", currentToken);
+          
+          // Simpan token ke localStorage agar SPA bisa mengambilnya saat checkout
+          localStorage.setItem("fcm_token_perangkat", currentToken);
+          
+          // JIKA YANG LOGIN ADALAH ADMIN:
+          // Anda bisa memunculkan token ini ke layar untuk disalin manual ke Google Script,
+          // atau kirim otomatis ke server jika sistem login admin Anda sudah dinamis.
+        } else {
+          console.log('Token tidak tersedia. Ambil izin ulang.');
+        }
+      })
+      .catch((err) => {
+        console.error('Gagal mengambil token perangkat: ', err);
+      });
+    } else {
+      console.warn('Izin notifikasi ditolak oleh pengguna.');
+    }
+  });
+}
   </script>
  </body>
 </html>
