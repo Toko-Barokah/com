@@ -506,6 +506,41 @@ body {
     display: inline-block;
 }
 
+/* Styling iOS Toggle Switch yang Sempurna */
+.switch .slider-toggle {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: #cbd5e1; /* Warna abu-abu saat OFF */
+    transition: background-color 0.3s ease;
+    border-radius: 24px;
+    display: block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch .slider-toggle:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: transform 0.3s ease;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* KETIKA DI-TOGLE / AKTIF */
+.switch input:checked + .slider-toggle {
+    background-color: #2563eb !important; /* Warna biru saat ON */
+}
+
+.switch input:checked + .slider-toggle:before {
+    transform: translateX(20px); /* Lingkaran putih bergeser ke kanan */
+}
+
     </style>
 </head>
 <body>
@@ -722,16 +757,14 @@ body {
 </div>
 
 <main id="page-pembayaran" class="page">
-          
     <h3 style="margin-bottom:15px; color:#1e3a8a;">
-      <button onclick="navTo('keranjang', document.querySelectorAll('.nav-item')[1])" style="background:none; border:none; color:#000; font-size:20px;"><i class="fas fa-arrow-left"></i>
-      </button>
-      <i class="fas fa-clipboard-list"></i> Rincian
+        <button onclick="navTo('keranjang', document.querySelectorAll('.nav-item')[1])" style="background:none; border:none; color:#000; font-size:20px;">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <i class="fas fa-clipboard-list"></i> Rincian
     </h3>
-    <div id="checkout-details" style="background:white; padding:15px; border-radius:12px; border:1px solid #eee;">
-        </div>
-    
-    <div class="address-section" style="margin-top:15px;">
+
+    <div class="address-section" style="margin-top:0px; margin-bottom:15px;">
         <h4><i class="fas fa-user"></i> Informasi Penerima</h4>
         <input type="text" id="pay-nama" placeholder="Nama Lengkap Penerima">
         <input type="number" id="pay-wa" placeholder="Nomor Handphone (Aktif)">
@@ -741,20 +774,56 @@ body {
             <option value="COD">Bayar di Tempat (COD)</option>
             <option value="QRIS">Transfer (QRIS)</option>
         </select>
-        
-        <div id="total-bayar-box" style="margin-top:15px; padding:10px; background:#f8fafc; border-radius:8px;
-        text-align:right;">
-            <span style="font-size:14px; color:#64748b;">Total Tagihan:</span>
-            <h2 id="display-total" style="color:#e11d48;">Rp0</h2>
-            <i style="font-size:9px; color:#94a3b8;">(Sudah Termasuk Ongkir)</i>
-        </div>
-        
-        <button class="btn-primary" id="confirm-pay-btn" onclick="prosesKonfirmasi()" style="margin-top:15px; background:#2563eb;">
-            Konfirmasi
-        </button>
     </div>
-</main>
 
+    <div id="coin-switch-container" style="background: white; padding: 12px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-coins" style="color: #facc15; font-size: 18px;"></i>
+            <div>
+                <strong style="font-size: 13px; color: #334155;">Gunakan Koin</strong>
+                <p style="font-size: 11px; color: #64748b; margin-top: 1px;" id="coin-switch-note"></p>
+            </div>
+        </div>
+        <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+            <input type="checkbox" id="use-coin-toggle" onchange="toggleCoinDiscount()" style="opacity: 0; width: 0; height: 0;">
+            <span class="slider-toggle" style="position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; transition: .3s; border-radius: 24px;"></span>
+        </label>
+    </div>
+
+    <div id="checkout-details" style="background:white; padding:15px; border-radius:12px; border:1px solid #eee;">
+        </div>
+    
+    <div id="total-bayar-box" style="margin-top:15px; padding:12px; background:#f8fafc; border-radius:8px; text-align:right; border: 1px solid #e2e8f0;">
+    
+    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #475569; margin-bottom: 4px;">
+        <span>Subtotal Barang:</span>
+        <span id="display-subtotal-barang">Rp0</span>
+    </div>
+    <div style="display: flex; justify-content: space-between; font-size: 13px; color: #475569; margin-bottom: 6px;">
+        <span>Ongkos Kirim:</span>
+        <span id="display-ongkir-pembayaran">Rp0</span>
+    </div>
+    
+    <div id="coin-discount-row" class="hidden" style="display: flex; justify-content: space-between; font-size: 13px; color: #e11d48; font-weight: bold; margin-bottom: 4px;">
+        <span id="display-label-koin">Potongan Koin:</span>
+        <span id="display-potongan-koin">-Rp0</span>
+    </div>
+
+    <div>
+        <span id="display-subtotal-pembayaran"></span>
+    </div>
+    
+    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 6px 0;">
+    <span style="font-size:13px; color:#334155; font-weight: bold;">Total Tagihan:</span>
+    <h2 id="display-total" style="color:#e11d48; margin-top: 2px;">Rp0</h2>
+    <i style="font-size:9px; color:#94a3b8;">(Sudah Termasuk Ongkir & Potongan)</i>
+</div>
+
+    
+    <button class="btn-primary" id="confirm-pay-btn" onclick="prosesKonfirmasi()" style="margin-top:15px; background:#2563eb;">
+        Konfirmasi Pesanan
+    </button>
+</main>
 
         <footer id="main-footer"> </footer>
 
@@ -792,6 +861,10 @@ body {
     let currentBannerIndex = 0;
     let bannerInterval = null;
     let bannerImagesCount = 0;
+    
+    let totalTagihanAwalGlobal = 0;
+let nominalPotonganKoinGlobal = 0;
+let totalTagihanAkhirGlobal = 0;
     
 window.addEventListener('DOMContentLoaded', () => {
     const savedUser = localStorage.getItem('tokbar_user_session');
@@ -1460,8 +1533,6 @@ function updateStokDisplay(select) {
    
 let listPesanan = JSON.parse(localStorage.getItem('user_orders')) || [];
 
-// 1. Fungsi Klik Checkout dari Keranjang
-// GANTI fungsi checkout Anda dengan ini
 function checkout() {
     const addrStr = localStorage.getItem('user_address');
     if(!addrStr) { 
@@ -1480,91 +1551,176 @@ function checkout() {
     const jarakKM = getDistanceKM(TOKO_COORDS.lat, TOKO_COORDS.lng, uLat, uLng);
     const subtotal = keranjang.reduce((sum, item) => sum + (item.harga * item.qty), 0);
     
-    // Hitung Ongkir
+    // Hitung Ongkos Kirim
     let ongkir = Math.max(2000, Math.round(subtotal * 0.03 * jarakKM)); 
-    const totalFinal = subtotal + ongkir;
+    
+    // Atur data kalkulasi awal tagihan
+    totalTagihanAwalGlobal = subtotal + ongkir;
+    totalTagihanAkhirGlobal = totalTagihanAwalGlobal;
 
+    // AMBIL DATA STOK KOIN USER SEBENARNYA DARI DOM HEADER ELEMEN (#user-coins)
+    const koinElement = document.getElementById('user-coins');
+    let userCoins = koinElement ? parseInt(koinElement.innerText.replace(/\./g, '')) || 0 : 0;
+
+    // Batas perhitungan potongan maksimal 0.15% dari total tagihan awal
+    let hitungPotonganMaks = Math.floor(totalTagihanAwalGlobal * 0.0015);
+    
+    // VALIDASI LOGIKA: Jika potongan 0.15% melebihi koin yang dimiliki user, 
+    // potongannya akan disesuaikan menjadi sebesar total koin yang user punya saja.
+    if (hitungPotonganMaks > userCoins) {
+        nominalPotonganKoinGlobal = userCoins;
+    } else {
+        nominalPotonganKoinGlobal = hitungPotonganMaks;
+    }
+
+    // Perbarui teks penjelasan di bawah judul switch koin agar informatif
+    const coinNoteElement = document.getElementById('coin-switch-note');
+    if (coinNoteElement) {
+        coinNoteElement.innerText = `Koin Anda: ${userCoins.toLocaleString()}`;
+    }
+
+    // Reset status tombol toggle ke mati/off setiap kali membuka halaman rincian baru
+    const coinToggle = document.getElementById('use-coin-toggle');
+    if(coinToggle) coinToggle.checked = false;
+    document.getElementById('coin-discount-row').classList.add('hidden');
+
+    // Menghasilkan data list barang yang dibeli
     const detailHTML = keranjang.map(item => `
-        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-            <span>${item.nama} (x${item.qty})</span>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:11px; color:#475569;">
+            <span>${item.nama} [${item.variasi}] [x${item.qty}]</span>
             <span>Rp${(item.harga * item.qty).toLocaleString()}</span>
         </div>
     `).join('');
     
     document.getElementById('checkout-details').innerHTML = `
-        ${detailHTML}
-        <div style="display:flex; justify-content:space-between; font-size:13px; color: #059669; font-weight:bold; margin-top:30px; margin-bottom:7px;">
-            <span>Subtotal:</span>
-            <span>Rp${subtotal.toLocaleString()}</span>
+        <div style="margin-bottom: 12px; max-height: 150px; overflow-y: auto;">
+            ${detailHTML}
         </div>
-        <div style="display:flex; justify-content:space-between; font-size:13px; color: #059669; font-weight:bold;">
-            <span>Ongkir:</span>
-            <span>Rp${ongkir.toLocaleString()}</span>
+        <div style="font-size:11px; color:#64748b; background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid #edf2f7; line-height: 1.4;">
+            <strong>Alamat Pengiriman:</strong> ${addr.jalan || ''}, ${addr.dusun || ''}, RT: ${addr.rt || ''}/RW: ${addr.rw || ''}, Kec. ${addr.kec || ''}, Kab. ${addr.kab || ''}, ${addr.prov || ''}
         </div>
-        <hr style="margin:10px 0; border:0; border-top:1px dashed #ddd;">
-        <div style="font-size:12px; color:#666;"><strong>Alamat:</strong> ${addr.jalan}, ${addr.dusun},Rt: ${addr.rt}/Rw: ${addr.rw}, Kec. ${addr.kec}, Kab. ${addr.kab}, ${addr.prov}</div>
     `;
-
-    document.getElementById('display-total').innerText = `Rp${totalFinal.toLocaleString()}`;
     
-    // PENTING: Masukkan totalFinal ke dalam parameter fungsi prosesKonfirmasi
-    document.getElementById('confirm-pay-btn').onclick = () => prosesKonfirmasi(totalFinal, ongkir);
+    document.getElementById('display-subtotal-barang').innerText = `Rp${subtotal.toLocaleString()}`;
+    document.getElementById('display-ongkir-pembayaran').innerText = `Rp${ongkir.toLocaleString()}`;
+    document.getElementById('display-potongan-koin').innerText = `-Rp${nominalPotonganKoinGlobal.toLocaleString()}`;
+    document.getElementById('display-subtotal-pembayaran').innerText = ``;
+    document.getElementById('display-total').innerText = `Rp${totalTagihanAwalGlobal.toLocaleString()}`;
+    
+    // Ikat fungsi prosesKonfirmasi ke tombol submit pesanan
+    document.getElementById('confirm-pay-btn').onclick = () => prosesKonfirmasi(totalTagihanAkhirGlobal, ongkir);
 }
-// GANTI fungsi prosesKonfirmasi Anda dengan ini
+
+function toggleCoinDiscount() {
+    const isChecked = document.getElementById('use-coin-toggle').checked;
+    const discountRow = document.getElementById('coin-discount-row');
+    const displayTotal = document.getElementById('display-total');
+    const confirmBtn = document.getElementById('confirm-pay-btn');
+    
+    // ==================== PERBAIKAN DI SINI ====================
+    // Langsung ambil angka dari elemen display ongkir, buang teks "Rp" dan titiknya
+    const ongkirElement = document.getElementById('display-ongkir-pembayaran');
+    let currentOngkir = 0;
+    if (ongkirElement) {
+        currentOngkir = parseInt(ongkirElement.innerText.replace(/[^0-9]/g, '')) || 0;
+    }
+    // ===========================================================
+
+    if (isChecked) {
+        // Jika diaktifkan: Kurangi total tagihan akhir dengan potongan koin tervalidasi
+        totalTagihanAkhirGlobal = totalTagihanAwalGlobal - nominalPotonganKoinGlobal;
+        discountRow.classList.remove('hidden'); // Munculkan baris potongan koin
+    } else {
+        // Jika dinonaktifkan: Kembalikan nominal total ke harga awal
+        totalTagihanAkhirGlobal = totalTagihanAwalGlobal;
+        discountRow.classList.add('hidden'); // Sembunyikan baris potongan koin
+    }
+
+    // Refresh display angka total tagihan real-time di bagian terbawah
+    displayTotal.innerText = `Rp${totalTagihanAkhirGlobal.toLocaleString()}`;
+    
+    // Perbarui fungsi klik tombol agar nominal dikirim dengan benar ke fungsi backend
+    confirmBtn.onclick = () => prosesKonfirmasi(totalTagihanAkhirGlobal, currentOngkir);
+}
+
 async function prosesKonfirmasi(totalFinal, ongkir) {
-    const nama = document.getElementById('pay-nama').value;
-    const wa = document.getElementById('pay-wa').value;
+    const nama = document.getElementById('pay-nama').value.trim();
+    const wa = document.getElementById('pay-wa').value.trim();
     const metode = document.getElementById('pay-metode').value;
-    const addr = JSON.parse(localStorage.getItem('user_address'));
+    const email = document.getElementById('user-display').innerText;
+    const addrStr = localStorage.getItem('user_address');
+
+    if(!nama || !wa) {
+        alert("Mohon lengkapi Nama Penerima dan Nomor Handphone Terlebih Dahulu!");
+        return;
+    }
+
+    const addr = JSON.parse(addrStr);
+    const detailAlamatLengkap = `${addr.jalan || ''}, ${addr.dusun || ''}, RT: ${addr.rt || 0}/RW: ${addr.rw || 0}, Kec. ${addr.kec || ''}, Kab. ${addr.kab || ''}, ${addr.prov || ''}, koordinat: ${addr.coords}`;
+
     const btn = document.getElementById('confirm-pay-btn');
-
-    if(!nama || !wa) { alert("Nama dan Nomer wajib diisi!"); return; }
-
     btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin">Memproses...</i>';
-
+    btn.innerText = "Memproses...";
+    
     const statusAwal = (metode === "QRIS") ? "Bayar" : "Dikemas";
 
-    const dataPesanan = {
+    // Deteksi apakah user mencentang/mengaktifkan fitur tukar koin barokah
+    const isCoinChecked = document.getElementById('use-coin-toggle').checked;
+    // Jika diaktifkan, kirim nominal nominalPotonganKoinGlobal, jika tidak diaktifkan set ke 0
+    const koinYangDipakai = isCoinChecked ? nominalPotonganKoinGlobal : 0;
+
+    const payload = {
         action: "submitOrder",
         data: {
-            email: document.getElementById('user-display').innerText,
+            email: email,
             penerima: nama,
             whatsapp: wa,
-            metode: metode,
-            total: totalFinal, 
-            ongkir: ongkir,
-            alamat: `${addr.jalan}, ${addr.dusun}, Rt: ${addr.rt}/Rw: ${addr.rw}, kec. ${addr.kec}, kab. ${addr.kab}, ${addr.prov}, koordinat: ${addr.coords}`,
-            items: JSON.stringify(keranjang.map(item => ({
-                nama: item.nama,
-                harga: item.harga,
-                qty: item.qty,
-                variasi: item.variasi || "-"
-              }))),
+            alamat: detailAlamatLengkap,
+            items: JSON.stringify(keranjang),
             subtotal: keranjang.reduce((sum, item) => sum + (item.harga * item.qty), 0),
-            status: statusAwal,
-            tanggal: new Date().toISOString()
+            ongkir: ongkir,
+            potonganKoin: koinYangDipakai, // DATA PENTING KOIN YANG AKAN DIPOTONG
+            total: totalFinal, // Nominal total bersih setelah dikurangi potongan koin (jika ada)
+            metode: metode,
+            status: statusAwal
         }
     };
 
     try {
-        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(dataPesanan) });
-        const result = await res.json();
+        const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        const result = await response.json();
 
         if (result.status === "success") {
-            alert("Pesanan Berhasil Dibuat!");
-            keranjang = []; 
-            renderKeranjang();
-            syncOrders(); // Tarik data terbaru dari server
+            alert("Terimakasih Atas Kepercayaan Anda. Kami Akan Segera Kemas Dan Kirim Pesanan Anda Secepat Mungkin!");
+            
+            // Mengurangi tampilan koin langsung di web secara lokal pasca transaksi sukses
+            if (koinYangDipakai > 0) {
+                const koinElement = document.getElementById('user-coins');
+                if (koinElement) {
+                    let userCoins = parseInt(koinElement.innerText.replace(/\./g, '')) || 0;
+                    let sisaKoin = Math.max(0, userCoins - koinYangDipakai);
+                    koinElement.innerText = sisaKoin.toLocaleString();
+                }
+            }
+
+            keranjang = [];
+            localStorage.removeItem('tokbar_cart');
+            updateBadges();
+            
+            // Sinkronisasi data pesanan & pindah ke tab pesanan
+            await syncOrders();
             navTo('pesanan', document.querySelectorAll('.nav-item')[2]);
         } else {
-            alert("Gagal simpan: " + result.message);
+            alert("Gagal memproses pesanan: " + result.message);
         }
     } catch (err) {
-        alert("Terjadi kesalahan jaringan.");
+        alert("Terjadi kesalahan jaringan saat konfirmasi pesanan.");
     } finally {
         btn.disabled = false;
-        btn.innerText = "Konfirmasi";
+        btn.innerText = "Konfirmasi Pesanan";
     }
 }
 
@@ -1639,18 +1795,18 @@ function renderDaftarPesanan(filterStatus) {
             
             <div style="background: #f8fafc; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
                 ${itemsHTML}
+            </div>
                 
-                <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 12px; color: #059669; border-top: 1px solid #eee; padding-top:5px;">
+            <div style="display: flex; justify-content: space-between; margin-top: 5px; font-size: 12px; color: #059669; border-top: 1px solid #eee; padding-top:5px;">
                     <span>Ongkos Kirim</span>
                     <span>Rp${parseInt(order.ongkir || 0).toLocaleString()}</span> 
-                </div>
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-weight:bold;">
-                <span style="font-size:12px; color:#64748b;">Total Bayar:</span>
+                <span style="font-size:12px; color:#64748b;">Total Tagihan:</span>
                 <div style="text-align: right;">
                     <span style="font-size:15px; color:#e11d48;">Rp${parseInt(order.total || 0).toLocaleString()}</span>
-                    <div style="font-size: 9px; color: #94a3b8; font-weight: normal; font-style:italic;">(Sudah Termasuk Ongkir)</div>
+                    <div style="font-size: 9px; color: #94a3b8; font-weight: normal; font-style:italic;">(Sudah Termasuk Ongkir & Potongan)</div>
                 </div>
             </div>
             
@@ -1877,6 +2033,7 @@ function getDistanceKM(lat1, lon1, lat2, lon2) {
               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
     return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
 }
+// Tambahkan parameter 'event' agar efek loading tombol berjalan lancar
 async function batalkanPesanan(order) {
     // Konfirmasi kepada pengguna agar tidak terjadi pembatalan tidak sengaja
     const konfirmasi = confirm("Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dirubah lagi setelah di batalkan.");
@@ -1895,7 +2052,8 @@ async function batalkanPesanan(order) {
                 action: "cancelOrder",
                 data: {
                     email: document.getElementById('user-display').innerText,
-                    tanggal: order.tanggal, // Digunakan sebagai ID unik untuk mencari baris di Sheet
+                    resi: order.nomerResi || order.resi, // DISELARASKAN: Mengirimkan Nomer Resi/Nota ke Backend
+                    tanggal: order.tanggal, 
                     penerima: order.penerima
                 }
             })
@@ -1919,6 +2077,7 @@ async function batalkanPesanan(order) {
         btn.innerHTML = originalText;
     }
 }
+
 // --- FUNGSI UPDATE NOTIFIKASI ---
 
 function updateBadges() {
