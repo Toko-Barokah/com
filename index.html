@@ -861,39 +861,43 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// 2. Fungsi Utama untuk Meminta Token Menggunakan VAPID Key
-function aktifkanNotifikasiSitus() {
-  // Minta izin ke browser perangkat (HP/Laptop)
-  Notification.requestPermission().then((permission) => {
+// ==================== TAMBAHKAN PEMICU DI SINI ====================
+// Fungsi untuk meminta izin dan mengambil token FCM perangkat pengguna
+async function aktifkanNotifikasiSistem() {
+  try {
+    // Meminta izin browser untuk memunculkan notifikasi
+    const permission = await Notification.requestPermission();
+    
     if (permission === 'granted') {
       console.log('Izin notifikasi diberikan.');
-
-      // Panggil getToken dan masukkan Web Push Certificate (VAPID Key) Anda di sini
-      getToken(messaging, { 
-        vapidKey: 'BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk' 
-      })
-      .then((currentToken) => {
-        if (currentToken) {
-          console.log("Token perangkat berhasil didapat:", currentToken);
-          
-          // Simpan token ke localStorage agar SPA bisa mengambilnya saat checkout
-          localStorage.setItem("fcm_token_perangkat", currentToken);
-          
-          // JIKA YANG LOGIN ADALAH ADMIN:
-          // Anda bisa memunculkan token ini ke layar untuk disalin manual ke Google Script,
-          // atau kirim otomatis ke server jika sistem login admin Anda sudah dinamis.
-        } else {
-          console.log('Token tidak tersedia. Ambil izin ulang.');
-        }
-      })
-      .catch((err) => {
-        console.error('Gagal mengambil token perangkat: ', err);
+      
+      // Ambil Token FCM unik dari perangkat ini
+      // GANTI "MASUKKAN_KEY_PAIR_VAPID_ANDA_DI_SINI" dengan Kunci Web Push (VAPID Key) dari Konsol Firebase Anda
+      const tokenFCM = await getToken(messaging, { 
+        vapidKey: "BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk" 
       });
+
+      if (tokenFCM) {
+        console.log("Token FCM Perangkat Berhasil Didapatkan:", tokenFCM);
+        // Simpan token ke localStorage agar bisa disisipkan saat submit order nanti
+        localStorage.setItem('tokbar_fcm_token', tokenFCM);
+      } else {
+        console.log('Gagal mendapatkan Token. Pastikan konfigurasi VAPID benar.');
+      }
     } else {
-      console.warn('Izin notifikasi ditolak oleh pengguna.');
+      console.log('Pengguna menolak izin notifikasi.');
     }
-  });
+  } catch (error) {
+    console.error('Terjadi kesalahan saat mengaktifkan notifikasi:', error);
+  }
 }
+
+// Memicu otomatis fungsi ketika web selesai dimuat penuh
+window.addEventListener('load', () => {
+  // Anda bisa langsung memicu secara otomatis, atau memanggilnya lewat tombol "Aktifkan Notifikasi" di menu profil
+  aktifkanNotifikasiSistem(); 
+});
+// ===================================================================
 </script>
 
     <script>
