@@ -1748,7 +1748,8 @@ async function prosesKonfirmasi(totalFinal, ongkir) {
             potonganKoin: koinYangDipakai, // DATA PENTING KOIN YANG AKAN DIPOTONG
             total: totalFinal, // Nominal total bersih setelah dikurangi potongan koin (jika ada)
             metode: metode,
-            status: statusAwal
+            status: statusAwal,
+            userToken: tokenFCM
         }
     };
 
