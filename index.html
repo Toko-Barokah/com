@@ -1254,6 +1254,10 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
                 if (typeof loadChatHistory === "function") loadChatHistory();
             } 
             
+            if (typeof window.aktifkanNotifikasiSistem === "function") {
+        window.aktifkanNotifikasiSistem();
+      }
+            
           else {alert(result.message);}
         } catch (err) {
             alert("Gagal melakukan pendaftaran. Periksa koneksi internet Anda.");
@@ -1294,6 +1298,10 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
                 if (typeof fetchUserCoins === "function") fetchUserCoins();
                 if (typeof loadChatHistory === "function") loadChatHistory();
             } 
+            
+            if (typeof window.aktifkanNotifikasiSistem === "function") {
+        window.aktifkanNotifikasiSistem();
+      }
             
           else {alert(result.message);}
         } catch (err) {
