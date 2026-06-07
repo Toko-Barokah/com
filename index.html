@@ -1552,7 +1552,7 @@ function checkout() {
     const subtotal = keranjang.reduce((sum, item) => sum + (item.harga * item.qty), 0);
     
     // Hitung Ongkos Kirim
-    let ongkir = Math.max(2000, Math.round(subtotal * 0.03 * jarakKM)); 
+    let ongkir = Math.max(1000, Math.round(subtotal * 0.03 * jarakKM)); 
     
     // Atur data kalkulasi awal tagihan
     totalTagihanAwalGlobal = subtotal + ongkir;
