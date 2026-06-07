@@ -1729,6 +1729,8 @@ async function prosesKonfirmasi(totalFinal, ongkir) {
     btn.innerText = "Memproses...";
     
     const statusAwal = (metode === "QRIS") ? "Bayar" : "Dikemas";
+    
+    localStorage.getItem('tokbar_fcm_token')
 
     // Deteksi apakah user mencentang/mengaktifkan fitur tukar koin barokah
     const isCoinChecked = document.getElementById('use-coin-toggle').checked;
@@ -1749,7 +1751,7 @@ async function prosesKonfirmasi(totalFinal, ongkir) {
             total: totalFinal, // Nominal total bersih setelah dikurangi potongan koin (jika ada)
             metode: metode,
             status: statusAwal,
-            userToken: tokenFCM
+            userToken: tokbar_fcm_token
         }
     };
 
@@ -1762,8 +1764,6 @@ async function prosesKonfirmasi(totalFinal, ongkir) {
 
         if (result.status === "success") {
             alert("Terimakasih Atas Kepercayaan Anda. Kami Akan Segera Kemas Dan Kirim Pesanan Anda Secepat Mungkin!");
-            
-            localStorage.getItem('tokbar_fcm_token')
             
             // Mengurangi tampilan koin langsung di web secara lokal pasca transaksi sukses
             if (koinYangDipakai > 0) {
