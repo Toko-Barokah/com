@@ -843,62 +843,6 @@ body {
             <div id="detail-body"></div>
         </div>
     </div>
-    
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.x/firebase-app.js";
-import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.x/firebase-messaging.js";
-
-// 1. Konfigurasi Firebase App Anda
-const firebaseConfig = {
-  apiKey: "AIzaSyB7hFBIrWeYXfBYKzF90iayS96Gw4JrIbI",
-  authDomain: "toko-barokah-ec660.firebaseapp.com",
-  projectId: "toko-barokah-ec660",
-  storageBucket: "toko-barokah-ec660.firebasestorage.app",
-  messagingSenderId: "888272773041",
-  appId: "1:888272773041:web:f483368e87690ac31d6790"
-};
-
-const app = initializeApp(firebaseConfig);
-const messaging = getMessaging(app);
-
-// ==================== TAMBAHKAN PEMICU DI SINI ====================
-// Fungsi untuk meminta izin dan mengambil token FCM perangkat pengguna
-async function aktifkanNotifikasiSistem() {
-  try {
-    // Meminta izin browser untuk memunculkan notifikasi
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      console.log('Izin notifikasi diberikan.');
-      
-      // Ambil Token FCM unik dari perangkat ini
-      // GANTI "MASUKKAN_KEY_PAIR_VAPID_ANDA_DI_SINI" dengan Kunci Web Push (VAPID Key) dari Konsol Firebase Anda
-      const tokenFCM = await getToken(messaging, { 
-        vapidKey: "BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk" 
-      });
-
-      if (tokenFCM) {
-        console.log("Token FCM Perangkat Berhasil Didapatkan:", tokenFCM);
-        // Simpan token ke localStorage agar bisa disisipkan saat submit order nanti
-        localStorage.setItem('tokbar_fcm_token', tokenFCM);
-      } else {
-        console.log('Gagal mendapatkan Token. Pastikan konfigurasi VAPID benar.');
-      }
-    } else {
-      console.log('Pengguna menolak izin notifikasi.');
-    }
-  } catch (error) {
-    console.error('Terjadi kesalahan saat mengaktifkan notifikasi:', error);
-  }
-}
-
-// Memicu otomatis fungsi ketika web selesai dimuat penuh
-window.addEventListener('load', () => {
-  // Anda bisa langsung memicu secara otomatis, atau memanggilnya lewat tombol "Aktifkan Notifikasi" di menu profil
-  aktifkanNotifikasiSistem(); 
-});
-// ===================================================================
-</script>
 
     <script>
       const TOKO_COORDS = { lat: -7.0308351, lng: 112.2225949 }; 
@@ -1238,6 +1182,7 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
                 
                 // SIMPAN SESI KE LOCAL STORAGE
                 const sessionData = { email: email, loginTime: new Date().getTime() };
+                inisialisasiNotifikasi(userEmail);
                 localStorage.setItem('tokbar_user_session', JSON.stringify(sessionData));
                 
                 // Ubah UI tampilan profil & Masuk Aplikasi Utama
@@ -1253,10 +1198,6 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
                 if (typeof fetchUserCoins === "function") fetchUserCoins();
                 if (typeof loadChatHistory === "function") loadChatHistory();
             } 
-            
-            if (typeof window.aktifkanNotifikasiSistem === "function") {
-        window.aktifkanNotifikasiSistem();
-      }
             
           else {alert(result.message);}
         } catch (err) {
@@ -1284,6 +1225,7 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
             if (result.status === "success") {
                 // SIMPAN SESI KE LOCAL STORAGE
                 const sessionData = { email: email, loginTime: new Date().getTime() };
+                inisialisasiNotifikasi(userEmail);
                 localStorage.setItem('tokbar_user_session', JSON.stringify(sessionData));
                 
                 document.getElementById('user-display').innerText = email;
@@ -1298,10 +1240,6 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
                 if (typeof fetchUserCoins === "function") fetchUserCoins();
                 if (typeof loadChatHistory === "function") loadChatHistory();
             } 
-            
-            if (typeof window.aktifkanNotifikasiSistem === "function") {
-        window.aktifkanNotifikasiSistem();
-      }
             
           else {alert(result.message);}
         } catch (err) {
@@ -1673,8 +1611,6 @@ function checkout() {
     
     // Ikat fungsi prosesKonfirmasi ke tombol submit pesanan
     document.getElementById('confirm-pay-btn').onclick = () => prosesKonfirmasi(totalTagihanAkhirGlobal, ongkir);
-    
-    localStorage.getItem('tokbar_fcm_token')
 }
 
 function toggleCoinDiscount() {
@@ -1729,8 +1665,6 @@ async function prosesKonfirmasi(totalFinal, ongkir) {
     btn.innerText = "Memproses...";
     
     const statusAwal = (metode === "QRIS") ? "Bayar" : "Dikemas";
-    
-    localStorage.getItem('tokbar_fcm_token')
 
     // Deteksi apakah user mencentang/mengaktifkan fitur tukar koin barokah
     const isCoinChecked = document.getElementById('use-coin-toggle').checked;
@@ -1750,8 +1684,7 @@ async function prosesKonfirmasi(totalFinal, ongkir) {
             potonganKoin: koinYangDipakai, // DATA PENTING KOIN YANG AKAN DIPOTONG
             total: totalFinal, // Nominal total bersih setelah dikurangi potongan koin (jika ada)
             metode: metode,
-            status: statusAwal,
-            userToken: tokbar_fcm_token
+            status: statusAwal
         }
     };
 
@@ -2889,54 +2822,77 @@ window.addEventListener('appinstalled', (evt) => {
     closeInstallModal();
 });
 
-if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/firebase-messaging-sw.js')
-          .then((reg) => {
-            console.log('Service Worker berhasil didaftarkan scope-nya: ', reg.scope);
-          })
-          .catch((err) => {
-            console.error('Pendaftaran Service Worker Gagal: ', err);
-          });
-      });
-    }
+    </script>
     
-    // 1. Menangkap navigasi PUSH ketika web sedang TERBUKA (Background ke Foreground)
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.addEventListener('message', (event) => {
-    if (event.data && event.data.action === 'navigasi_spa') {
-      const halaman = event.data.page;
-      const nomorResi = event.data.resi;
+    <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-messaging-compat.js"></script>
 
-      // Eksekusi fungsi router bawaan SPA Anda di sini!
-      if (halaman === 'pengiriman') {
-        // Contoh: ganti komponen tampilan ke bagian Admin tanpa reload
-        bukaKomponenAdminKasir(); 
-      } else if (halaman === 'switchStatus') {
-        bukaKomponenRiwayatPesananUser(nomorResi);
-      }
-    }
-  });
+<script>
+// Konfigurasi Firebase Anda
+const firebaseConfig = {
+    apiKey: "AIzaSyB7hFBIrWeYXfBYKzF90iayS96Gw4JrIbI",
+  authDomain: "toko-barokah-ec660.firebaseapp.com",
+  projectId: "toko-barokah-ec660",
+  storageBucket: "toko-barokah-ec660.firebasestorage.app",
+  messagingSenderId: "888272773041",
+  appId: "1:888272773041:web:f483368e87690ac31d6790"
+};
+
+// Inisialisasi Firebase
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// Fungsi untuk meminta izin notifikasi dan mendapatkan FCM Token
+function inisialisasiNotifikasi(userEmail) {
+    Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+            console.log('Izin notifikasi diberikan.');
+            
+            // Ambil FCM Token
+            messaging.getToken({ vapidKey: 'BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk' }).then((currentToken) => {
+                if (currentToken) {
+                    console.log('FCM Token Anda: ', currentToken);
+                    // Kirim token ini ke backend Google Apps Script agar terikat dengan email user
+                    simpanTokenKeGoogleSheet(userEmail, currentToken);
+                } else {
+                    console.log('Tidak dapat memperoleh token. Minta izin kembali.');
+                }
+            }).catch((err) => {
+                console.log('Terjadi kesalahan saat mengambil token: ', err);
+            });
+        } else {
+            console.log('Izin notifikasi ditolak.');
+        }
+    });
 }
 
-// 2. Menangkap navigasi PUSH ketika web awalnya TERTUTUP TOTAL (Membuka Tab Baru)
-window.addEventListener('load', () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('p') === 'notif') {
-    const halaman = urlParams.get('target');
-    const nomorResi = urlParams.get('resi');
+// Mendaftarkan service worker firebase-messaging-sw.js ke browser
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then((registration) => {
+        console.log('Firebase Service Worker sukses didaftarkan dengan scope:', registration.scope);
+    })
+    .catch((err) => {
+        console.error('Firebase Service Worker gagal didaftarkan:', err);
+    });
+}
 
-    // Jalankan fungsi router internal SPA Anda
-    if (halaman === 'pengiriman') {
-      bukaKomponenAdminKasir();
-    } else if (halaman === 'switchStatus') {
-      bukaKomponenRiwayatPesananUser(nomorResi);
-    }
+// Fungsi mengirim token ke Google Apps Script
+function simpanTokenKeGoogleSheet(email, token) {
+    fetch("https://script.google.com/macros/s/AKfycbzv4TUXGEYaV2C-wezhlHDS33DP_x_voo4hX1ZwKi9K6OUZeTIvQSfO96VwIWgnXYDm/exec", {
+        method: "POST",
+        body: JSON.stringify({
+            action: "updateFcmToken",
+            data: { email: email, fcmToken: token }
+        })
+    })
+    .then(res => res.json())
+    .then(res => console.log("Status simpan token:", res))
+    .catch(err => console.error("Gagal simpan token:", err));
+}
 
-    // Bersihkan URL parameter dari browser agar rapi kembali
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-});
-  </script>
- </body>
+// Panggil fungsi inisialisasiNotifikasi(emailUser) sesaat setelah user sukses Login!
+</script>
+
+</body>
 </html>
