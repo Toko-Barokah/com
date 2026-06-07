@@ -1182,7 +1182,6 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
                 
                 // SIMPAN SESI KE LOCAL STORAGE
                 const sessionData = { email: email, loginTime: new Date().getTime() };
-                inisialisasiNotifikasi(userEmail);
                 localStorage.setItem('tokbar_user_session', JSON.stringify(sessionData));
                 
                 // Ubah UI tampilan profil & Masuk Aplikasi Utama
@@ -1225,7 +1224,6 @@ document.getElementById('auth-form').addEventListener('submit', async (e) => {
             if (result.status === "success") {
                 // SIMPAN SESI KE LOCAL STORAGE
                 const sessionData = { email: email, loginTime: new Date().getTime() };
-                inisialisasiNotifikasi(userEmail);
                 localStorage.setItem('tokbar_user_session', JSON.stringify(sessionData));
                 
                 document.getElementById('user-display').innerText = email;
@@ -2823,76 +2821,5 @@ window.addEventListener('appinstalled', (evt) => {
 });
 
     </script>
-    
-    <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.14.0/firebase-messaging-compat.js"></script>
-
-<script>
-// Konfigurasi Firebase Anda
-const firebaseConfig = {
-    apiKey: "AIzaSyB7hFBIrWeYXfBYKzF90iayS96Gw4JrIbI",
-  authDomain: "toko-barokah-ec660.firebaseapp.com",
-  projectId: "toko-barokah-ec660",
-  storageBucket: "toko-barokah-ec660.firebasestorage.app",
-  messagingSenderId: "888272773041",
-  appId: "1:888272773041:web:f483368e87690ac31d6790"
-};
-
-// Inisialisasi Firebase
-firebase.initializeApp(firebaseConfig);
-const messaging = firebase.messaging();
-
-// Fungsi untuk meminta izin notifikasi dan mendapatkan FCM Token
-function inisialisasiNotifikasi(userEmail) {
-    Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-            console.log('Izin notifikasi diberikan.');
-            
-            // Ambil FCM Token
-            messaging.getToken({ vapidKey: 'BLms32f8lcmjFyZEUHCHqvqmnUalrDc2S5MoE0gVd-I3OZtAmxFyj9zp-4ty7PveRg1DROdWSfu88aa211vxpOk' }).then((currentToken) => {
-                if (currentToken) {
-                    console.log('FCM Token Anda: ', currentToken);
-                    // Kirim token ini ke backend Google Apps Script agar terikat dengan email user
-                    simpanTokenKeGoogleSheet(userEmail, currentToken);
-                } else {
-                    console.log('Tidak dapat memperoleh token. Minta izin kembali.');
-                }
-            }).catch((err) => {
-                console.log('Terjadi kesalahan saat mengambil token: ', err);
-            });
-        } else {
-            console.log('Izin notifikasi ditolak.');
-        }
-    });
-}
-
-// Mendaftarkan service worker firebase-messaging-sw.js ke browser
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/firebase-messaging-sw.js')
-    .then((registration) => {
-        console.log('Firebase Service Worker sukses didaftarkan dengan scope:', registration.scope);
-    })
-    .catch((err) => {
-        console.error('Firebase Service Worker gagal didaftarkan:', err);
-    });
-}
-
-// Fungsi mengirim token ke Google Apps Script
-function simpanTokenKeGoogleSheet(email, token) {
-    fetch("https://script.google.com/macros/s/AKfycbzv4TUXGEYaV2C-wezhlHDS33DP_x_voo4hX1ZwKi9K6OUZeTIvQSfO96VwIWgnXYDm/exec", {
-        method: "POST",
-        body: JSON.stringify({
-            action: "updateFcmToken",
-            data: { email: email, fcmToken: token }
-        })
-    })
-    .then(res => res.json())
-    .then(res => console.log("Status simpan token:", res))
-    .catch(err => console.error("Gagal simpan token:", err));
-}
-
-// Panggil fungsi inisialisasiNotifikasi(emailUser) sesaat setelah user sukses Login!
-</script>
-
 </body>
 </html>
